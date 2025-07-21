@@ -1,0 +1,2124 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="h-full antialiased">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Contract Management System - Enterprise Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+<script defer src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Suppress Tailwind CDN production warning BEFORE Tailwind loads
+  (function() {
+    if (window._tailwindWarningsSuppressed) return;
+    window._tailwindWarningsSuppressed = true;
+    
+    const originalWarn = console.warn;
+    console.warn = function(...args) {
+      const message = args.join(' ');
+      if (message.includes('cdn.tailwindcss.com should not be used in production')) {
+        return; // Suppress this specific warning
+      }
+      originalWarn.apply(console, args);
+    };
+  })();
+</script>
+<script>
+  // Suppress Tailwind CDN production warning BEFORE Tailwind loads
+  (function() {
+    if (window._tailwindWarningsSuppressed) return;
+    window._tailwindWarningsSuppressed = true;
+    
+    const originalWarn = console.warn;
+    console.warn = function(...args) {
+      const message = args.join(' ');
+      if (message.includes('cdn.tailwindcss.com should not be used in production')) {
+        return; // Suppress this specific warning
+      }
+      originalWarn.apply(console, args);
+    };
+  })();
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Serif:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@300;400;500;600;700&family=Inter&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Serif:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@300;400;500;600;700&family=Inter&display=swap" rel="stylesheet">
+  <style>
+    /* Sidebar active navigation styles */
+    .nav-link.active {
+      background-color: #10b981 !important; /* emerald-500 */
+      color: white !important;
+    }
+    
+    .nav-link.active:hover {
+      background-color: #059669 !important; /* emerald-600 */
+    }
+  </style>
+</head>
+<body class="h-full bg-gradient-to-br from-slate-100 via-gray-100 to-slate-200 text-gray-800 font-inter">
+<div class="flex h-full">
+    <!-- Mobile Menu Button -->
+    <button id="mobileMenuBtn" class="lg:hidden fixed top-4 left-4 z-50 p-2 bg-slate-800/80 backdrop-blur-lg rounded-lg border border-white/10">
+        <i data-lucide="menu" class="h-5 w-5"></i>
+    </button>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed lg:relative inset-y-0 left-0 z-40 w-60 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col gap-6 border-r border-slate-200 bg-slate-50 shadow-sm p-6">
+        <div class="flex items-center gap-3">
+            <div class="h-8 w-8 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg grid place-content-center">
+                <i data-lucide="file-text" class="h-5 w-5 text-white"></i>
+            </div>
+            <span class="text-lg font-semibold tracking-tight text-slate-800">Contract Management</span>
+        </div>
+
+        <!-- 主菜单 -->
+        <nav class="flex flex-col gap-1 text-sm">
+            <!-- 概况 -->
+            <div class="space-y-1">
+                <button id="overviewToggle" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg bg-emerald-100 text-emerald-800 font-medium">
+                    <i data-lucide="bar-chart-3" class="h-4 w-4"></i>
+                    <span class="flex-1 text-left">Overview</span>
+                    <i data-lucide="chevron-down" class="h-4 w-4"></i>
+                </button>
+                <div id="overviewMenu" class="ml-6 space-y-1">
+                    <a href="#" onclick="showPage('dashboard')" data-page="dashboard" class="nav-link flex items-center gap-2 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 transition">
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="#" onclick="showPage('performance')" data-page="performance" class="nav-link flex items-center gap-2 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 transition">
+                        <span>Performance History</span>
+                    </a>
+                    <a href="#" onclick="showPage('forecast')" data-page="forecast" class="nav-link flex items-center gap-2 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 transition">
+                        <span>Revenue Forecast</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 审计中心 -->
+            <a href="#" onclick="showPage('audit')" data-page="audit" class="nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 transition">
+                <i data-lucide="search" class="h-4 w-4"></i>
+                Audit Center
+            </a>
+
+            <!-- 合同订单 -->
+            <div class="space-y-1">
+                <button id="contractToggle" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 transition">
+                    <i data-lucide="file-text" class="h-4 w-4"></i>
+                    <span class="flex-1 text-left">Contracts & Orders</span>
+                    <i data-lucide="chevron-right" id="contractChevron" class="h-4 w-4"></i>
+                </button>
+                <div id="contractMenu" class="ml-6 space-y-1 hidden">
+                    <a href="#" onclick="showPage('customers')" data-page="customers" class="nav-link flex items-center gap-2 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 transition">
+                        <span>Client List</span>
+                    </a>
+                    <a href="#" onclick="showPage('contracts')" data-page="contracts" class="nav-link flex items-center gap-2 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 transition">
+                        <span>Contract List</span>
+                    </a>
+                    <a href="#" onclick="showPage('invoices')" data-page="invoices" class="nav-link flex items-center gap-2 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 transition">
+                        <span>Invoice List</span>
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- 底部菜单 -->
+        <div class="mt-auto space-y-1">
+            <a href="#" id="settingsBtn" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 transition">
+                <i data-lucide="settings" class="h-4 w-4"></i>
+                Settings
+            </a>
+            <a href="#" id="helpBtn" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 transition">
+                <i data-lucide="help-circle" class="h-4 w-4"></i>
+                Help
+            </a>
+        </div>
+    </aside>
+
+    <!-- Overlay for mobile -->
+    <div id="overlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-30 lg:hidden hidden"></div>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col overflow-hidden bg-gray-50">
+        <!-- Top bar -->
+        <header class="flex items-center justify-between gap-4 px-4 lg:px-6 py-4 border-b border-gray-200 bg-white text-gray-800">
+            <div class="flex items-center gap-4">
+                <div class="lg:hidden w-8"></div>
+                <div>
+                    <h1 id="pageTitle" class="text-base lg:text-lg font-medium">Contract Management Dashboard</h1>
+                    <p class="text-xs lg:text-sm text-gray-500">Enterprise Contract Management Solution</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <!-- 用户信息 -->
+                <div class="flex items-center gap-3">
+                    <span class="hidden sm:block text-sm">Hi, Manager Zhang</span>
+                    <div class="relative">
+                        <button id="userMenuBtn" class="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition">
+                            <div class="h-6 w-6 rounded-full bg-white flex items-center justify-center font-semibold text-xs text-emerald-600">
+                                A
+                            </div>
+                            <i data-lucide="chevron-down" class="h-4 w-4" id="userMenuChevron"></i>
+                        </button>
+                        <div id="userDropdown" class="absolute right-0 top-10 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-2 hidden">
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Switch Account</a>
+                            <hr class="my-1">
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Sign Out</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <section class="flex-1 overflow-y-auto p-4 lg:p-6">
+            
+            <!-- 首页页面 -->
+            <div id="dashboardPage" class="page-content">
+                <!-- 统计卡片 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white rounded-xl shadow-sm border p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">Total Contracts</p>
+                                <p class="text-3xl font-bold text-gray-900">42</p>
+                            </div>
+                            <div class="h-12 w-12 bg-emerald-100 rounded-lg flex items-center justify-center">
+                                <i data-lucide="file-text" class="h-6 w-6 text-emerald-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-sm border p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">Active Clients</p>
+                                <p class="text-3xl font-bold text-gray-900">8</p>
+                            </div>
+                            <div class="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <i data-lucide="users" class="h-6 w-6 text-blue-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-sm border p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">Monthly Revenue</p>
+                                <p class="text-3xl font-bold text-gray-900">$128K</p>
+                            </div>
+                            <div class="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                <i data-lucide="dollar-sign" class="h-6 w-6 text-green-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-sm border p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">Audit Completion Rate</p>
+                                <p class="text-3xl font-bold text-gray-900">78%</p>
+                            </div>
+                            <div class="h-12 w-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                                <i data-lucide="check-circle" class="h-6 w-6 text-orange-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 主要内容卡片 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <!-- 合同概览卡片 -->
+                    <div class="bg-white rounded-xl shadow-sm border p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Contract Overview</h3>
+                        <div class="text-center mb-6">
+                            <p class="text-4xl font-bold text-gray-900 mb-2">42</p>
+                            <p class="text-gray-600">Total Contracts</p>
+                        </div>
+                        
+                        <div class="space-y-4 mb-6">
+                            <div class="flex items-center gap-3">
+                                <div class="w-4 h-4 bg-blue-500 rounded"></div>
+                                <span class="text-sm text-gray-600 flex-1">In Progress (12)</span>
+                                <div class="w-32 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-blue-500 h-2 rounded-full" style="width: 28.5%"></div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-4 h-4 bg-green-500 rounded"></div>
+                                <span class="text-sm text-gray-600 flex-1">Completed (25)</span>
+                                <div class="w-32 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-500 h-2 rounded-full" style="width: 59.5%"></div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-4 h-4 bg-red-500 rounded"></div>
+                                <span class="text-sm text-gray-600 flex-1">Overdue (5)</span>
+                                <div class="w-32 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-red-500 h-2 rounded-full" style="width: 12%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button onclick="showPage('contracts')" class="w-full bg-emerald-600 text-white py-2 px-4 rounded-lg hover:bg-emerald-700 transition">
+                            View Contracts
+                        </button>
+                    </div>
+
+                    <!-- 活跃客户卡片 -->
+                    <div class="bg-white rounded-xl shadow-sm border p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Active Clients</h3>
+                        <div class="text-center mb-6">
+                            <p class="text-4xl font-bold text-gray-900 mb-2">8</p>
+                            <p class="text-gray-600">Active Clients</p>
+                        </div>
+                        
+                        <div class="space-y-3 mb-6">
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div class="flex items-center gap-3">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">Client A</p>
+                                        <p class="text-xs text-gray-500">3 contracts · Latest update: 07/20</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Normal</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div class="flex items-center gap-3">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">Client B</p>
+                                        <p class="text-xs text-gray-500">1 contract · Overdue!</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs">Alert</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div class="flex items-center gap-3">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">Client C</p>
+                                        <p class="text-xs text-gray-500">2 contracts · 50% progress</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">In Progress</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button onclick="showPage('customers')" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition">
+                            Manage Clients
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 第二行卡片 -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                    <!-- 历史表现预览卡片 -->
+                    <div class="bg-white rounded-xl shadow-sm border p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-gray-900">Performance History</h3>
+                            <button onclick="showPage('performance')" class="text-emerald-600 hover:text-emerald-700 text-sm">Details</button>
+                        </div>
+                        
+                        <div class="space-y-3 mb-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">Monthly Completion Rate</span>
+                                <span class="font-medium text-gray-900">92%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-green-500 h-2 rounded-full" style="width: 92%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4 text-center">
+                            <div>
+                                <p class="text-2xl font-bold text-green-600">$456K</p>
+                                <p class="text-xs text-gray-500">Quarterly Revenue</p>
+                            </div>
+                            <div>
+                                <p class="text-2xl font-bold text-blue-600">156</p>
+                                <p class="text-xs text-gray-500">Total Contracts</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 收入预测预览卡片 -->
+                    <div class="bg-white rounded-xl shadow-sm border p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-gray-900">Revenue Forecast</h3>
+                            <button onclick="showPage('forecast')" class="text-emerald-600 hover:text-emerald-700 text-sm">Details</button>
+                        </div>
+                        
+                        <div class="text-center mb-4">
+                            <p class="text-2xl font-bold text-gray-900">$680K</p>
+                            <p class="text-sm text-gray-500">Projected Next Quarter Revenue</p>
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">Expected Growth</span>
+                                <span class="text-green-600 font-medium">+18%</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">Risk Level</span>
+                                <span class="text-yellow-600 font-medium">Low</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">Pending Contracts</span>
+                                <span class="text-blue-600 font-medium">12</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 审计数据卡片 -->
+                    <div class="bg-white rounded-xl shadow-sm border p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-gray-900">Audit Center</h3>
+                            <select id="auditPeriod" class="text-sm border border-gray-300 rounded px-3 py-1 text-gray-800">
+                                <option value="1month">Last Month</option>
+                                <option value="3months">Last 3 Months</option>
+                                <option value="6months">Last 6 Months</option>
+                                <option value="1year">Last Year</option>
+                            </select>
+                        </div>
+                        
+                        <div class="flex items-center justify-center mb-6">
+                            <div class="relative w-32 h-32">
+                                <canvas id="auditChart" class="w-full h-full"></canvas>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <div class="text-center">
+                                        <p class="text-2xl font-bold text-gray-900">78%</p>
+                                        <p class="text-xs text-gray-500">Completion Rate</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-2 mb-6">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">Audited: 22</span>
+                                <span class="text-gray-600">Pending: 18</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">✅ Compliant Invoices: 96%</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">⚠️ Anomalous Documents: 4%</span>
+                            </div>
+                        </div>
+                        
+                        <button onclick="showPage('audit')" class="w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition">
+                            Start Audit
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 收入趋势全宽卡片 -->
+                <div class="bg-white rounded-xl shadow-sm border p-6 mb-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold text-gray-900">Monthly Revenue Trends</h3>
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm text-emerald-600 flex items-center gap-1">
+                                <i data-lucide="trending-up" class="h-4 w-4"></i>
+                                +8.2%
+                            </span>
+                            <select class="text-sm border border-gray-300 rounded px-3 py-1 text-gray-800">
+                                <option>2024</option>
+                                <option>2023</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="h-64">
+                        <canvas id="revenueChart" class="w-full h-full"></canvas>
+                    </div>
+                </div>
+
+                <!-- 最近交易全宽卡片 -->
+                <div class="bg-white rounded-xl shadow-sm border p-6 mb-8">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Recent Transactions (10 records)</h3>
+                    
+                    <div class="overflow-x-auto">
+                        <div class="max-h-80 overflow-y-auto">
+                            <table class="w-full text-sm">
+                                <thead class="text-gray-500 border-b sticky top-0 bg-white">
+                                    <tr>
+                                        <th class="text-left py-2">Date</th>
+                                        <th class="text-left py-2">Client</th>
+                                        <th class="text-left py-2">Amount</th>
+                                        <th class="text-left py-2">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100">
+                                <tr>
+                                    <td class="py-2 text-gray-800">07/20</td>
+                                    <td class="py-2 text-gray-800">Client A</td>
+                                    <td class="py-2 text-gray-800">$5,000</td>
+                                    <td class="py-2"><span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Paid</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 text-gray-800">07/19</td>
+                                    <td class="py-2 text-gray-800">Client B</td>
+                                    <td class="py-2 text-gray-800">$3,200</td>
+                                    <td class="py-2"><span class="px-2 py-1 bg-orange-100 text-orange-800 rounded-full text-xs">Pending</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 text-gray-800">07/18</td>
+                                    <td class="py-2 text-gray-800">Client C</td>
+                                    <td class="py-2 text-gray-800">$8,500</td>
+                                    <td class="py-2"><span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Paid</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 text-gray-800">07/17</td>
+                                    <td class="py-2 text-gray-800">Client D</td>
+                                    <td class="py-2 text-gray-800">$2,800</td>
+                                    <td class="py-2"><span class="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs">Overdue</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 text-gray-800">07/16</td>
+                                    <td class="py-2 text-gray-800">Client E</td>
+                                    <td class="py-2 text-gray-800">$4,200</td>
+                                    <td class="py-2"><span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Paid</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 text-gray-800">07/15</td>
+                                    <td class="py-2 text-gray-800">Client F</td>
+                                    <td class="py-2 text-gray-800">$6,800</td>
+                                    <td class="py-2"><span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">Confirmed</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 text-gray-800">07/14</td>
+                                    <td class="py-2 text-gray-800">Client G</td>
+                                    <td class="py-2 text-gray-800">$3,600</td>
+                                    <td class="py-2"><span class="px-2 py-1 bg-orange-100 text-orange-800 rounded-full text-xs">Pending</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 text-gray-800">07/13</td>
+                                    <td class="py-2 text-gray-800">Client H</td>
+                                    <td class="py-2 text-gray-800">$9,200</td>
+                                    <td class="py-2"><span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Paid</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 text-gray-800">07/12</td>
+                                    <td class="py-2 text-gray-800">Client I</td>
+                                    <td class="py-2 text-gray-800">$5,500</td>
+                                    <td class="py-2"><span class="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs">Overdue</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 text-gray-800">07/11</td>
+                                    <td class="py-2 text-gray-800">Client J</td>
+                                    <td class="py-2 text-gray-800">$7,300</td>
+                                    <td class="py-2"><span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Paid</span></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <button onclick="showPage('invoices')" class="w-full mt-4 bg-orange-600 text-white py-2 px-4 rounded-lg hover:bg-orange-700 transition">
+                        View All
+                    </button>
+                </div>
+
+                <!-- 活动提醒全宽卡片 -->
+                <div class="bg-white rounded-xl shadow-sm border p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Upcoming Activities</h3>
+                    
+                    <div class="space-y-4 mb-6">
+                        <div class="flex items-center gap-4 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition">
+                            <span class="text-orange-500">⚠️</span>
+                            <div class="flex-1">
+                                <p class="font-medium text-gray-900">Contract C · 50% Progress · Due 07/25</p>
+                                <p class="text-sm text-gray-500">Need to follow up on contract execution progress</p>
+                            </div>
+                            <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">● In Progress</span>
+                        </div>
+                        
+                        <div class="flex items-center gap-4 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition">
+                            <span class="text-red-500">⚠️</span>
+                            <div class="flex-1">
+                                <p class="font-medium text-gray-900">Contact Client D · 2 Days Overdue</p>
+                                <p class="text-sm text-gray-500">Payment overdue, immediate contact required</p>
+                            </div>
+                            <span class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm">● Overdue</span>
+                        </div>
+                        
+                        <div class="flex items-center gap-4 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition">
+                            <span class="text-blue-500">ℹ️</span>
+                            <div class="flex-1">
+                                <p class="font-medium text-gray-900">Invoice #INV205 Review · 07/22</p>
+                                <p class="text-sm text-gray-500">Awaiting financial review</p>
+                            </div>
+                            <span class="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm">● Pending</span>
+                        </div>
+                    </div>
+                    
+                    <button class="bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition">
+                        View All Tasks
+                    </button>
+                </div>
+            </div>
+
+            <!-- 客户名单页面 -->
+            <div id="customersPage" class="page-content hidden">
+                <div class="bg-white rounded-xl shadow-sm border">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-semibold text-gray-900">Client List</h3>
+                            <button id="addCustomerBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                                Add Client
+                            </button>
+                        </div>
+                        <div class="mt-4">
+                            <input type="text" id="customerSearch" placeholder="Search clients..." class="w-full max-w-md px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full min-w-max">
+                            <thead class="bg-gray-50 text-gray-500 text-sm">
+                                <tr>
+                                    <th class="text-left px-6 py-3 whitespace-nowrap">Client Name</th>
+                                    <th class="text-left px-6 py-3 whitespace-nowrap">Contract Count</th>
+                                    <th class="text-left px-6 py-3 whitespace-nowrap">In Progress</th>
+                                    <th class="text-left px-6 py-3 whitespace-nowrap">Completed</th>
+                                    <th class="text-left px-6 py-3 whitespace-nowrap">Overdue</th>
+                                    <th class="text-left px-6 py-3 whitespace-nowrap">Contact Person</th>
+                                    <th class="text-left px-6 py-3 whitespace-nowrap">Phone</th>
+                                    <th class="text-left px-6 py-3 whitespace-nowrap">Notes</th>
+                                    <th class="text-left px-6 py-3 whitespace-nowrap">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr class="hover:bg-gray-50 cursor-pointer">
+                                    <td class="px-6 py-2 whitespace-nowrap">
+                                        <div class="font-medium text-gray-900">Beijing Tech Co., Ltd.</div>
+                                    </td>
+                                    <td class="px-6 py-2 text-gray-600 whitespace-nowrap">5</td>
+                                    <td class="px-6 py-2 text-blue-600 whitespace-nowrap">2</td>
+                                    <td class="px-6 py-2 text-green-600 whitespace-nowrap">3</td>
+                                    <td class="px-6 py-2 text-red-600 whitespace-nowrap">0</td>
+                                    <td class="px-6 py-2 text-gray-600 whitespace-nowrap">Manager Zhang</td>
+                                    <td class="px-6 py-2 text-gray-600 whitespace-nowrap">13800138000</td>
+                                    <td class="px-6 py-2 text-gray-600" style="min-width: 250px;" title="Key client, excellent partner">Key client, excellent partner</td>
+                                    <td class="px-6 py-2 whitespace-nowrap">
+                                        <div class="flex gap-2">
+                                            <button class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition">Edit</button>
+                                            <button class="bg-gray-600 text-white px-3 py-1 rounded text-sm hover:bg-gray-700 transition">Details</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 cursor-pointer">
+                                    <td class="px-6 py-2 whitespace-nowrap">
+                                        <div class="font-medium text-gray-900">Shanghai Manufacturing Group</div>
+                                    </td>
+                                    <td class="px-6 py-2 text-gray-600 whitespace-nowrap">3</td>
+                                    <td class="px-6 py-2 text-blue-600 whitespace-nowrap">1</td>
+                                    <td class="px-6 py-2 text-green-600 whitespace-nowrap">1</td>
+                                    <td class="px-6 py-2 text-red-600 whitespace-nowrap">1</td>
+                                    <td class="px-6 py-2 text-gray-600 whitespace-nowrap">Director Li</td>
+                                    <td class="px-6 py-2 text-gray-600 whitespace-nowrap">13900139000</td>
+                                    <td class="px-6 py-2 text-gray-600" style="min-width: 250px;" title="One contract overdue, requires follow-up">One contract overdue, requires follow-up</td>
+                                    <td class="px-6 py-2 whitespace-nowrap">
+                                        <div class="flex gap-2">
+                                            <button class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition">Edit</button>
+                                            <button class="bg-gray-600 text-white px-3 py-1 rounded text-sm hover:bg-gray-700 transition">Details</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 cursor-pointer">
+                                    <td class="px-6 py-2 whitespace-nowrap">
+                                        <div class="font-medium text-gray-900">Guangzhou Trading Company</div>
+                                    </td>
+                                    <td class="px-6 py-2 text-gray-600 whitespace-nowrap">2</td>
+                                    <td class="px-6 py-2 text-blue-600 whitespace-nowrap">1</td>
+                                    <td class="px-6 py-2 text-green-600 whitespace-nowrap">1</td>
+                                    <td class="px-6 py-2 text-red-600 whitespace-nowrap">0</td>
+                                    <td class="px-6 py-2 text-gray-600 whitespace-nowrap">Director Wang</td>
+                                    <td class="px-6 py-2 text-gray-600 whitespace-nowrap">13700137000</td>
+                                    <td class="px-6 py-2 text-gray-600" style="min-width: 250px;" title="New client, smooth cooperation">New client, smooth cooperation</td>
+                                    <td class="px-6 py-2 whitespace-nowrap">
+                                        <div class="flex gap-2">
+                                            <button class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition">Edit</button>
+                                            <button class="bg-gray-600 text-white px-3 py-1 rounded text-sm hover:bg-gray-700 transition">Details</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 合同列表页面 -->
+            <div id="contractsPage" class="page-content hidden">
+                <div class="bg-white rounded-xl shadow-sm border">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-semibold text-gray-900">Contract List</h3>
+                            <button class="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition">
+                                Add Contract
+                            </button>
+                        </div>
+                        <div class="mt-4 flex gap-4">
+                            <select id="contractStatusFilter" class="px-3 py-2 border border-gray-300 rounded-lg text-gray-800">
+                                <option value="all">All Status</option>
+                                <option value="active">In Progress</option>
+                                <option value="completed">Completed</option>
+                                <option value="overdue">Overdue</option>
+                            </select>
+                            <input type="text" placeholder="Search contracts..." class="flex-1 max-w-md px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full min-w-max">
+                            <thead class="bg-gray-50 text-gray-500 text-sm">
+                                <tr>
+                                    <th class="text-left px-6 py-3 whitespace-nowrap">Contract Number</th>
+                                    <th class="text-left px-6 py-3 whitespace-nowrap">Client Name</th>
+                                    <th class="text-left px-6 py-3 whitespace-nowrap">Signed Date</th>
+                                    <th class="text-left px-6 py-3 whitespace-nowrap">Contract Amount</th>
+                                    <th class="text-left px-6 py-3 whitespace-nowrap">Progress</th>
+                                    <th class="text-left px-6 py-3 whitespace-nowrap">Status</th>
+                                    <th class="text-left px-6 py-3 whitespace-nowrap">Manager</th>
+                                    <th class="text-left px-6 py-3 whitespace-nowrap">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-2 font-medium text-gray-900 whitespace-nowrap">CONTRACT-2024-001</td>
+                                    <td class="px-6 py-2 text-gray-600 whitespace-nowrap">Beijing Tech Co., Ltd.</td>
+                                    <td class="px-6 py-2 text-gray-600 whitespace-nowrap">2024-01-15</td>
+                                    <td class="px-6 py-2 text-gray-900 font-medium whitespace-nowrap">$150,000</td>
+                                    <td class="px-6 py-2 whitespace-nowrap">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-20 bg-gray-200 rounded-full h-2">
+                                                <div class="bg-blue-500 h-2 rounded-full" style="width: 60%"></div>
+                                            </div>
+                                            <span class="text-sm text-gray-600">60%</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-2 whitespace-nowrap">
+                                        <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">In Progress</span>
+                                    </td>
+                                    <td class="px-6 py-2 text-gray-600 whitespace-nowrap">Manager Zhang</td>
+                                    <td class="px-6 py-2 whitespace-nowrap">
+                                        <div class="flex gap-2">
+                                            <button class="bg-emerald-600 text-white px-3 py-1 rounded text-sm hover:bg-emerald-700 transition">Edit</button>
+                                            <button class="bg-gray-600 text-white px-3 py-1 rounded text-sm hover:bg-gray-700 transition">Details</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-2 font-medium text-gray-900 whitespace-nowrap">CONTRACT-2024-002</td>
+                                    <td class="px-6 py-2 text-gray-600 whitespace-nowrap">Shanghai Manufacturing Group</td>
+                                    <td class="px-6 py-2 text-gray-600 whitespace-nowrap">2024-02-20</td>
+                                    <td class="px-6 py-2 text-gray-900 font-medium whitespace-nowrap">$89,500</td>
+                                    <td class="px-6 py-2 whitespace-nowrap">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-20 bg-gray-200 rounded-full h-2">
+                                                <div class="bg-green-500 h-2 rounded-full" style="width: 100%"></div>
+                                            </div>
+                                            <span class="text-sm text-gray-600">100%</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-2 whitespace-nowrap">
+                                        <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Completed</span>
+                                    </td>
+                                    <td class="px-6 py-2 text-gray-600 whitespace-nowrap">Director Li</td>
+                                    <td class="px-6 py-2 whitespace-nowrap">
+                                        <div class="flex gap-2">
+                                            <button class="bg-emerald-600 text-white px-3 py-1 rounded text-sm hover:bg-emerald-700 transition">Edit</button>
+                                            <button class="bg-gray-600 text-white px-3 py-1 rounded text-sm hover:bg-gray-700 transition">Details</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-2 font-medium text-gray-900 whitespace-nowrap">CONTRACT-2024-003</td>
+                                    <td class="px-6 py-2 text-gray-600 whitespace-nowrap">Guangzhou Trading Company</td>
+                                    <td class="px-6 py-2 text-gray-600 whitespace-nowrap">2024-03-10</td>
+                                    <td class="px-6 py-2 text-gray-900 font-medium whitespace-nowrap">$45,200</td>
+                                    <td class="px-6 py-2 whitespace-nowrap">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-20 bg-gray-200 rounded-full h-2">
+                                                <div class="bg-red-500 h-2 rounded-full" style="width: 30%"></div>
+                                            </div>
+                                            <span class="text-sm text-gray-600">30%</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-2 whitespace-nowrap">
+                                        <span class="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs">Overdue</span>
+                                    </td>
+                                    <td class="px-6 py-2 text-gray-600 whitespace-nowrap">Assistant Wang</td>
+                                    <td class="px-6 py-2 whitespace-nowrap">
+                                        <div class="flex gap-2">
+                                            <button class="bg-emerald-600 text-white px-3 py-1 rounded text-sm hover:bg-emerald-700 transition">Edit</button>
+                                            <button class="bg-gray-600 text-white px-3 py-1 rounded text-sm hover:bg-gray-700 transition">Details</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-2 font-medium text-gray-900 whitespace-nowrap">CONTRACT-2024-004</td>
+                                    <td class="px-6 py-2 text-gray-600 whitespace-nowrap">Shenzhen Innovation Tech</td>
+                                    <td class="px-6 py-2 text-gray-600 whitespace-nowrap">2024-04-05</td>
+                                    <td class="px-6 py-2 text-gray-900 font-medium whitespace-nowrap">$125,800</td>
+                                    <td class="px-6 py-2 whitespace-nowrap">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-20 bg-gray-200 rounded-full h-2">
+                                                <div class="bg-blue-500 h-2 rounded-full" style="width: 75%"></div>
+                                            </div>
+                                            <span class="text-sm text-gray-600">75%</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-2 whitespace-nowrap">
+                                        <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">In Progress</span>
+                                    </td>
+                                    <td class="px-6 py-2 text-gray-600 whitespace-nowrap">Manager Chen</td>
+                                    <td class="px-6 py-2 whitespace-nowrap">
+                                        <div class="flex gap-2">
+                                            <button class="bg-emerald-600 text-white px-3 py-1 rounded text-sm hover:bg-emerald-700 transition">Edit</button>
+                                            <button class="bg-gray-600 text-white px-3 py-1 rounded text-sm hover:bg-gray-700 transition">Details</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 发票列表页面 -->
+            <div id="invoicesPage" class="page-content hidden">
+                <div class="bg-white rounded-xl shadow-sm border">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-semibold text-gray-900">Invoice List</h3>
+                            <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                                Add Invoice
+                            </button>
+                        </div>
+                        <div class="mt-4 flex gap-4">
+                            <select id="invoiceStatusFilter" class="px-3 py-2 border border-gray-300 rounded-lg text-gray-800">
+                                <option value="all">All Status</option>
+                                <option value="paid">Paid</option>
+                                <option value="pending">Pending</option>
+                                <option value="overdue">Overdue</option>
+                            </select>
+                            <input type="text" placeholder="Search invoices..." class="flex-1 max-w-md px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full min-w-max">
+                            <thead class="bg-gray-50 text-gray-500 text-sm">
+                                <tr>
+                                    <th class="text-left px-4 py-3 whitespace-nowrap">Invoice Number</th>
+                                    <th class="text-left px-4 py-3 whitespace-nowrap">Contract Number</th>
+                                    <th class="text-left px-4 py-3 whitespace-nowrap">Client Name</th>
+                                    <th class="text-left px-4 py-3 whitespace-nowrap">Amount</th>
+                                    <th class="text-left px-4 py-3 whitespace-nowrap">Issue Date</th>
+                                    <th class="text-left px-4 py-3 whitespace-nowrap">Due Date</th>
+                                    <th class="text-left px-4 py-3 whitespace-nowrap">Status</th>
+                                    <th class="text-left px-4 py-3 whitespace-nowrap">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">INV-2024-001</td>
+                                    <td class="px-4 py-2 text-gray-600 whitespace-nowrap">CONTRACT-001</td>
+                                    <td class="px-4 py-2 text-gray-600 whitespace-nowrap">Beijing Tech Co., Ltd.</td>
+                                    <td class="px-4 py-2 text-gray-900 font-medium whitespace-nowrap">$50,000</td>
+                                    <td class="px-4 py-2 text-gray-600 whitespace-nowrap">02-01</td>
+                                    <td class="px-4 py-2 text-gray-600 whitespace-nowrap">02-15</td>
+                                    <td class="px-4 py-2 whitespace-nowrap">
+                                        <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs whitespace-nowrap">Paid</span>
+                                    </td>
+                                    <td class="px-4 py-2 whitespace-nowrap">
+                                        <div class="flex gap-2">
+                                            <button class="bg-emerald-600 text-white px-3 py-1 rounded text-sm hover:bg-emerald-700 transition">View</button>
+                                            <button class="bg-gray-600 text-white px-3 py-1 rounded text-sm hover:bg-gray-700 transition">Edit</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">INV-2024-002</td>
+                                    <td class="px-4 py-2 text-gray-600 whitespace-nowrap">CONTRACT-001</td>
+                                    <td class="px-4 py-2 text-gray-600 whitespace-nowrap">Beijing Tech Co., Ltd.</td>
+                                    <td class="px-4 py-2 text-gray-900 font-medium whitespace-nowrap">$75,000</td>
+                                    <td class="px-4 py-2 text-gray-600 whitespace-nowrap">04-01</td>
+                                    <td class="px-4 py-2 text-gray-600 whitespace-nowrap">04-15</td>
+                                    <td class="px-4 py-2 whitespace-nowrap">
+                                        <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs whitespace-nowrap">Paid</span>
+                                    </td>
+                                    <td class="px-4 py-2 whitespace-nowrap">
+                                        <div class="flex gap-2">
+                                            <button class="bg-emerald-600 text-white px-3 py-1 rounded text-sm hover:bg-emerald-700 transition">View</button>
+                                            <button class="bg-gray-600 text-white px-3 py-1 rounded text-sm hover:bg-gray-700 transition">Edit</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">INV-2024-003</td>
+                                    <td class="px-4 py-2 text-gray-600 whitespace-nowrap">CONTRACT-002</td>
+                                    <td class="px-4 py-2 text-gray-600 whitespace-nowrap">Shanghai Manufacturing Group</td>
+                                    <td class="px-4 py-2 text-gray-900 font-medium whitespace-nowrap">$32,000</td>
+                                    <td class="px-4 py-2 text-gray-600 whitespace-nowrap">07-01</td>
+                                    <td class="px-4 py-2 text-gray-600 whitespace-nowrap">07-15</td>
+                                    <td class="px-4 py-2 whitespace-nowrap">
+                                        <span class="px-2 py-1 bg-orange-100 text-orange-800 rounded-full text-xs whitespace-nowrap">Pending</span>
+                                    </td>
+                                    <td class="px-4 py-2 whitespace-nowrap">
+                                        <div class="flex gap-2">
+                                            <button class="bg-emerald-600 text-white px-3 py-1 rounded text-sm hover:bg-emerald-700 transition">View</button>
+                                            <button class="bg-gray-600 text-white px-3 py-1 rounded text-sm hover:bg-gray-700 transition">Edit</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 审计中心页面 -->
+            <div id="auditPage" class="page-content hidden">
+                <div class="space-y-6">
+                    <!-- 审计概览 -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-white rounded-xl shadow-sm border p-6">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="check-circle" class="h-6 w-6 text-green-600"></i>
+                                </div>
+                                <div>
+                                    <p class="text-2xl font-bold text-gray-900">22</p>
+                                    <p class="text-sm text-gray-600">Audited</p>
+                                </div>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-green-500 h-2 rounded-full" style="width: 78%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl shadow-sm border p-6">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="clock" class="h-6 w-6 text-blue-600"></i>
+                                </div>
+                                <div>
+                                    <p class="text-2xl font-bold text-gray-900">18</p>
+                                    <p class="text-sm text-gray-600">Pending Audit</p>
+                                </div>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-blue-500 h-2 rounded-full" style="width: 22%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl shadow-sm border p-6">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="h-12 w-12 bg-red-100 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="alert-circle" class="h-6 w-6 text-red-600"></i>
+                                </div>
+                                <div>
+                                    <p class="text-2xl font-bold text-gray-900">3</p>
+                                    <p class="text-sm text-gray-600">Anomalous Documents</p>
+                                </div>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-red-500 h-2 rounded-full" style="width: 15%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 审计任务表格 -->
+                    <div class="bg-white rounded-xl shadow-sm border">
+                        <div class="p-6 border-b border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-lg font-semibold text-gray-900">Audit Tasks</h3>
+                                <div class="flex gap-3">
+                                    <select class="px-3 py-2 border border-gray-300 rounded-lg">
+                                        <option value="thismonth">This Month</option>
+                                        <option value="lastmonth">Last Month</option>
+                                        <option value="custom">Custom Range</option>
+                                    </select>
+                                    <button class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
+                                        Export Records
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="w-full min-w-max">
+                                <thead class="bg-gray-50 text-gray-500 text-sm">
+                                    <tr>
+                                        <th class="text-left px-6 py-3 whitespace-nowrap">Invoice Number</th>
+                                        <th class="text-left px-6 py-3 whitespace-nowrap">Client</th>
+                                        <th class="text-left px-6 py-3 whitespace-nowrap">Amount</th>
+                                        <th class="text-left px-6 py-3 whitespace-nowrap">Status</th>
+                                        <th class="text-left px-6 py-3 whitespace-nowrap">Audit Result</th>
+                                        <th class="text-left px-6 py-3 whitespace-nowrap">Notes</th>
+                                        <th class="text-left px-6 py-3 whitespace-nowrap">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">INV-2024-001</td>
+                                        <td class="px-6 py-4 text-gray-600 whitespace-nowrap">Beijing Tech Co., Ltd.</td>
+                                        <td class="px-6 py-4 text-gray-900 whitespace-nowrap">$50,000</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Compliant</span>
+                                        </td>
+                                        <td class="px-6 py-2 whitespace-nowrap">
+                                            <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Passed</span>
+                                        </td>
+                                        <td class="px-6 py-2 text-gray-600" style="min-width: 200px;">Audit passed, no issues</td>
+                                        <td class="px-6 py-2 whitespace-nowrap">
+                                            <div class="flex gap-2 items-center">
+                                                <button class="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition w-16 text-center">Details</button>
+                                                <button class="px-3 py-1 bg-gray-600 text-white text-xs rounded hover:bg-gray-700 transition w-16 text-center">Edit</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-2 font-medium text-gray-900 whitespace-nowrap">INV-2024-004</td>
+                                        <td class="px-6 py-2 text-gray-600 whitespace-nowrap">Guangzhou Trading Company</td>
+                                        <td class="px-6 py-2 text-gray-900 whitespace-nowrap">$28,500</td>
+                                        <td class="px-6 py-2 whitespace-nowrap">
+                                            <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">Pending Audit</span>
+                                        </td>
+                                        <td class="px-6 py-2 whitespace-nowrap">
+                                            <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs">Pending</span>
+                                        </td>
+                                        <td class="px-6 py-2 text-gray-600" style="min-width: 200px;">Awaiting audit</td>
+                                        <td class="px-6 py-2 whitespace-nowrap">
+                                            <div class="flex gap-2 items-center">
+                                                <button class="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 transition w-16 text-center">Audit</button>
+                                                <button class="px-3 py-1 bg-gray-600 text-white text-xs rounded hover:bg-gray-700 transition w-16 text-center">Details</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-2 font-medium text-gray-900 whitespace-nowrap">INV-2024-005</td>
+                                        <td class="px-6 py-2 text-gray-600 whitespace-nowrap">Shenzhen Innovation Tech</td>
+                                        <td class="px-6 py-2 text-gray-900 whitespace-nowrap">$15,200</td>
+                                        <td class="px-6 py-2 whitespace-nowrap">
+                                            <span class="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs">Abnormal</span>
+                                        </td>
+                                        <td class="px-6 py-2 whitespace-nowrap">
+                                            <span class="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs">Non-compliant</span>
+                                        </td>
+                                        <td class="px-6 py-2 text-gray-600" style="min-width: 200px;">Amount anomaly detected, requires review</td>
+                                        <td class="px-6 py-2 whitespace-nowrap">
+                                            <div class="flex gap-2 items-center">
+                                                <button class="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition w-16 text-center">Review</button>
+                                                <button class="px-3 py-1 bg-gray-600 text-white text-xs rounded hover:bg-gray-700 transition w-16 text-center">Details</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 历史表现页面 -->
+            <div id="performancePage" class="page-content hidden">
+                <div class="space-y-6">
+                    <!-- 统计概览 -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div class="bg-white rounded-xl shadow-sm border p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-600">Total Contracts</p>
+                                    <p class="text-3xl font-bold text-gray-900">156</p>
+                                </div>
+                                <div class="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="file-text" class="h-6 w-6 text-blue-600"></i>
+                                </div>
+                            </div>
+                            <p class="text-sm text-green-600 mt-2">+12% vs last quarter</p>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl shadow-sm border p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-600">Total Revenue</p>
+                                    <p class="text-3xl font-bold text-gray-900">$1.28M</p>
+                                </div>
+                                <div class="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="dollar-sign" class="h-6 w-6 text-green-600"></i>
+                                </div>
+                            </div>
+                            <p class="text-sm text-green-600 mt-2">+8% vs last quarter</p>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl shadow-sm border p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-600">Completion Rate</p>
+                                    <p class="text-3xl font-bold text-gray-900">92%</p>
+                                </div>
+                                <div class="h-12 w-12 bg-emerald-100 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="check-circle" class="h-6 w-6 text-emerald-600"></i>
+                                </div>
+                            </div>
+                            <p class="text-sm text-green-600 mt-2">+5% vs last quarter</p>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl shadow-sm border p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-600">Customer Satisfaction</p>
+                                    <p class="text-3xl font-bold text-gray-900">4.8</p>
+                                </div>
+                                <div class="h-12 w-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="star" class="h-6 w-6 text-yellow-600"></i>
+                                </div>
+                            </div>
+                            <p class="text-sm text-green-600 mt-2">+0.3 vs last quarter</p>
+                        </div>
+                    </div>
+
+                    <!-- 月度表现趋势 -->
+                    <div class="bg-white rounded-xl shadow-sm border p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-6">Monthly Performance Trends</h3>
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="text-md font-medium text-gray-800 mb-4">Contract Signing Trends</h4>
+                                <div class="h-48">
+                                    <canvas id="contractChart" class="w-full h-full"></canvas>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h4 class="text-md font-medium text-gray-800 mb-4">Revenue Trend Comparison</h4>
+                                <div class="h-48">
+                                    <canvas id="incomeCompareChart" class="w-full h-full"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 客户类型分析 -->
+                    <div class="bg-white rounded-xl shadow-sm border p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-6">Customer Type & Business Analysis</h3>
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="text-md font-medium text-gray-800 mb-4">Customer Type Distribution</h4>
+                                <div class="h-64">
+                                    <canvas id="customerTypeChart" class="w-full h-full"></canvas>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h4 class="text-md font-medium text-gray-800 mb-4">Business Type Revenue Share</h4>
+                                <div class="h-64">
+                                    <canvas id="businessTypeChart" class="w-full h-full"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 客户分析 -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-white rounded-xl shadow-sm border p-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Premium Client Analysis</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                                    <div>
+                                        <p class="font-medium text-gray-900">Beijing Tech Co., Ltd.</p>
+                                        <p class="text-sm text-gray-500">5 contracts • $450K</p>
+                                    </div>
+                                    <span class="text-green-600 font-medium">Premium</span>
+                                </div>
+                                <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                                    <div>
+                                        <p class="font-medium text-gray-900">Shanghai Manufacturing Group</p>
+                                        <p class="text-sm text-gray-500">3 contracts • $280K</p>
+                                    </div>
+                                    <span class="text-blue-600 font-medium">Stable</span>
+                                </div>
+                                <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                                    <div>
+                                        <p class="font-medium text-gray-900">Guangzhou Trading Company</p>
+                                        <p class="text-sm text-gray-500">4 contracts • $320K</p>
+                                    </div>
+                                    <span class="text-emerald-600 font-medium">Growing</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl shadow-sm border p-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Business Type Distribution</h3>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">Software Development</span>
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-24 bg-gray-200 rounded-full h-2">
+                                            <div class="bg-blue-500 h-2 rounded-full" style="width: 65%"></div>
+                                        </div>
+                                        <span class="text-sm font-medium text-gray-900">65%</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">Technical Consulting</span>
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-24 bg-gray-200 rounded-full h-2">
+                                            <div class="bg-green-500 h-2 rounded-full" style="width: 25%"></div>
+                                        </div>
+                                        <span class="text-sm font-medium text-gray-900">25%</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">Project Management</span>
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-24 bg-gray-200 rounded-full h-2">
+                                            <div class="bg-purple-500 h-2 rounded-full" style="width: 10%"></div>
+                                        </div>
+                                        <span class="text-sm font-medium text-gray-900">10%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 收入预测页面 -->
+            <div id="forecastPage" class="page-content hidden">
+                <div class="space-y-6">
+                    <!-- 预测概览 -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-white rounded-xl shadow-sm border p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-600">Next Quarter Forecast Revenue</p>
+                                    <p class="text-3xl font-bold text-gray-900">$680K</p>
+                                </div>
+                                <div class="h-12 w-12 bg-emerald-100 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="trending-up" class="h-6 w-6 text-emerald-600"></i>
+                                </div>
+                            </div>
+                            <p class="text-sm text-green-600 mt-2">Expected growth +18%</p>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl shadow-sm border p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-600">Pending Contract Value</p>
+                                    <p class="text-3xl font-bold text-gray-900">$420K</p>
+                                </div>
+                                <div class="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="clipboard-list" class="h-6 w-6 text-blue-600"></i>
+                                </div>
+                            </div>
+                            <p class="text-sm text-blue-600 mt-2">12 contracts pending</p>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl shadow-sm border p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-600">Risk Factor</p>
+                                    <p class="text-3xl font-bold text-gray-900">Low</p>
+                                </div>
+                                <div class="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="shield-check" class="h-6 w-6 text-green-600"></i>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-2">Stable growth trend</p>
+                        </div>
+                    </div>
+
+                    <!-- 月度预测详情 -->
+                    <div class="bg-white rounded-xl shadow-sm border p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-semibold text-gray-900">Next 6 Months Revenue Forecast</h3>
+                            <select id="forecastType" class="text-sm border border-gray-300 rounded px-3 py-1 text-gray-800">
+                                <option value="conservative">Conservative Forecast</option>
+                                <option value="realistic" selected>Realistic Forecast</option>
+                                <option value="optimistic">Optimistic Forecast</option>
+                            </select>
+                        </div>
+                        
+                        <div class="h-80 mb-6">
+                            <canvas id="forecastChart" class="w-full h-full"></canvas>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div>
+                                <h4 class="text-md font-medium text-gray-800 mb-4">Key Forecast Factors</h4>
+                                <div class="space-y-4">
+                                    <div class="p-4 bg-green-50 rounded-lg border border-green-200">
+                                        <div class="flex items-center gap-3 mb-2">
+                                            <span class="text-green-600">📈</span>
+                                            <span class="font-medium text-green-900">Positive Factors</span>
+                                        </div>
+                                        <ul class="text-sm text-green-800 space-y-1">
+                                            <li>• 12 high-value contracts pending</li>
+                                            <li>• Customer renewal rate 85%</li>
+                                            <li>• Market demand continues to grow</li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <div class="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                                        <div class="flex items-center gap-3 mb-2">
+                                            <span class="text-yellow-600">⚠️</span>
+                                            <span class="font-medium text-yellow-900">Risk Factors</span>
+                                        </div>
+                                        <ul class="text-sm text-yellow-800 space-y-1">
+                                            <li>• Seasonal revenue fluctuations</li>
+                                            <li>• 3 major client contracts expiring</li>
+                                            <li>• Intensified market competition</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h4 class="text-md font-medium text-gray-800 mb-4">Forecast Confidence Analysis</h4>
+                                <div class="h-64">
+                                    <canvas id="confidenceChart" class="w-full h-full"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 风险评估与机会分析 -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-white rounded-xl shadow-sm border p-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Risk Assessment Heat Map</h3>
+                            <div class="h-64">
+                                <canvas id="riskChart" class="w-full h-full"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl shadow-sm border p-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Market Opportunity Analysis</h3>
+                            <div class="h-64">
+                                <canvas id="opportunityChart" class="w-full h-full"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 待签合同详情 -->
+                    <div class="bg-white rounded-xl shadow-sm border p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Pending Contract Analysis</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead class="text-gray-500 border-b">
+                                    <tr>
+                                        <th class="text-left py-2">Client Name</th>
+                                        <th class="text-left py-2">Expected Amount</th>
+                                        <th class="text-left py-2">Signing Probability</th>
+                                        <th class="text-left py-2">Expected Signing Date</th>
+                                        <th class="text-left py-2">Revenue Impact</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    <tr>
+                                        <td class="py-3 text-gray-800">Hangzhou Internet Company</td>
+                                        <td class="py-3 text-gray-800">$85,000</td>
+                                        <td class="py-3">
+                                            <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">90%</span>
+                                        </td>
+                                        <td class="py-3 text-gray-800">Mid-August</td>
+                                        <td class="py-3 text-green-600 font-medium">+$85K</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-3 text-gray-800">Chengdu Tech Group</td>
+                                        <td class="py-3 text-gray-800">$120,000</td>
+                                        <td class="py-3">
+                                            <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">75%</span>
+                                        </td>
+                                        <td class="py-3 text-gray-800">Early September</td>
+                                        <td class="py-3 text-blue-600 font-medium">+$90K</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-3 text-gray-800">Xian Manufacturing Enterprise</td>
+                                        <td class="py-3 text-gray-800">$65,000</td>
+                                        <td class="py-3">
+                                            <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">60%</span>
+                                        </td>
+                                        <td class="py-3 text-gray-800">End of October</td>
+                                        <td class="py-3 text-yellow-600 font-medium">+$39K</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<!-- 帮助弹窗 -->
+<div id="helpModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+    <div class="flex items-center justify-center min-h-screen">
+        <div class="bg-white rounded-lg p-6 m-4 max-w-md w-full">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Help & Support</h3>
+            <div class="space-y-3">
+                <div>
+                    <p class="text-sm font-medium text-gray-700">Customer Service:</p>
+                    <p class="text-sm text-gray-600">400-123-4567</p>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-700">Technical Support:</p>
+                    <p class="text-sm text-gray-600">tech@company.com</p>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-700">Business Hours:</p>
+                    <p class="text-sm text-gray-600">Mon-Fri 9:00-18:00</p>
+                </div>
+            </div>
+            <div class="flex justify-end mt-6">
+                <button id="closeHelpModal" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 设置弹窗 -->
+<div id="settingsModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+    <div class="flex items-center justify-center min-h-screen">
+        <div class="bg-white rounded-lg p-6 m-4 max-w-lg w-full">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">System Settings</h3>
+            
+            <div class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Theme Color</label>
+                    <div class="grid grid-cols-4 gap-3">
+                        <button class="theme-color w-full h-12 rounded-lg bg-emerald-500 hover:bg-emerald-600" data-theme="emerald"></button>
+                        <button class="theme-color w-full h-12 rounded-lg bg-blue-500 hover:bg-blue-600" data-theme="blue"></button>
+                        <button class="theme-color w-full h-12 rounded-lg bg-purple-500 hover:bg-purple-600" data-theme="purple"></button>
+                        <button class="theme-color w-full h-12 rounded-lg bg-red-500 hover:bg-red-600" data-theme="red"></button>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Language</label>
+                    <select id="languageSelect" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                        <option value="zh">Chinese</option>
+                        <option value="en">English</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Notifications</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center">
+                            <input type="checkbox" id="emailNotifications" class="mr-2" checked>
+                            <span class="text-sm text-gray-600">Email Notifications</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" id="pushNotifications" class="mr-2" checked>
+                            <span class="text-sm text-gray-600">Push Notifications</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex justify-end gap-3 mt-6">
+                <button id="closeSettingsModal" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition">
+                    Cancel
+                </button>
+                <button id="saveSettings" class="px-4 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700 transition">
+                    Save
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    lucide.createIcons();
+
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+
+    function toggleMobileMenu() {
+        sidebar.classList.toggle('-translate-x-full');
+        overlay.classList.toggle('hidden');
+    }
+
+    mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+    overlay.addEventListener('click', toggleMobileMenu);
+
+    // Chart.js全局配置
+    Chart.defaults.color = '#6b7280';
+    Chart.defaults.borderColor = 'rgba(107, 114, 128, 0.1)';
+    Chart.defaults.backgroundColor = 'rgba(107, 114, 128, 0.05)';
+    
+    // 页面切换功能
+    window.showPage = function(pageId) {
+        // 隐藏所有页面
+        const pages = document.querySelectorAll('.page-content');
+        pages.forEach(page => page.classList.add('hidden'));
+        
+        // 显示指定页面
+        const targetPage = document.getElementById(pageId + 'Page');
+        if (targetPage) {
+            targetPage.classList.remove('hidden');
+        }
+        
+        // 移除所有导航链接的活动状态
+        const navLinks = document.querySelectorAll('.nav-link');
+        navLinks.forEach(link => link.classList.remove('active'));
+        
+        // 添加当前页面的活动状态
+        const activeLink = document.querySelector(`.nav-link[data-page="${pageId}"]`);
+        if (activeLink) {
+            activeLink.classList.add('active');
+            // 如果是子菜单，确保父菜单展开
+            const parentMenu = activeLink.closest('#overviewMenu, #contractMenu');
+            if (parentMenu) {
+                parentMenu.classList.remove('hidden');
+                if (parentMenu.id === 'overviewMenu') {
+                    const chevron = document.querySelector('#overviewToggle [data-lucide="chevron-down"]');
+                    if (chevron) chevron.classList.add('rotate-180');
+                } else if (parentMenu.id === 'contractMenu') {
+                    const chevron = document.getElementById('contractChevron');
+                    if (chevron) chevron.classList.add('rotate-90');
+                }
+            }
+        }
+        
+        // 更新页面标题
+        const pageTitle = document.getElementById('pageTitle');
+        const titles = {
+            'dashboard': 'Contract Management Dashboard',
+            'customers': 'Client List Management',
+            'contracts': 'Contract List Management',
+            'invoices': 'Invoice List Management',
+            'audit': 'Audit Center',
+            'performance': 'Performance Analysis',
+            'forecast': 'Revenue Forecast Analysis'
+        };
+        if (pageTitle && titles[pageId]) {
+            pageTitle.textContent = titles[pageId];
+        }
+    };
+
+    // 导航菜单控制
+    const overviewToggle = document.getElementById('overviewToggle');
+    const overviewMenu = document.getElementById('overviewMenu');
+    const contractToggle = document.getElementById('contractToggle');
+    const contractMenu = document.getElementById('contractMenu');
+    const contractChevron = document.getElementById('contractChevron');
+
+    // 概况菜单展开收起
+    overviewToggle?.addEventListener('click', () => {
+        overviewMenu?.classList.toggle('hidden');
+        const chevron = overviewToggle.querySelector('[data-lucide="chevron-down"]');
+        if (chevron) {
+            chevron.classList.toggle('rotate-180');
+        }
+    });
+
+    contractToggle?.addEventListener('click', () => {
+        contractMenu?.classList.toggle('hidden');
+        contractChevron?.classList.toggle('rotate-90');
+    });
+
+    // 用户下拉菜单
+    const userMenuBtn = document.getElementById('userMenuBtn');
+    const userDropdown = document.getElementById('userDropdown');
+
+    userMenuBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        userDropdown?.classList.toggle('hidden');
+        const chevron = document.getElementById('userMenuChevron');
+        chevron?.classList.toggle('rotate-180');
+    });
+
+    document.addEventListener('click', () => {
+        userDropdown?.classList.add('hidden');
+        const chevron = document.getElementById('userMenuChevron');
+        chevron?.classList.remove('rotate-180');
+    });
+
+    // 帮助弹窗功能
+    const helpBtn = document.getElementById('helpBtn');
+    const helpModal = document.getElementById('helpModal');
+    const closeHelpModal = document.getElementById('closeHelpModal');
+
+    helpBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        helpModal?.classList.remove('hidden');
+    });
+
+    closeHelpModal?.addEventListener('click', () => {
+        helpModal?.classList.add('hidden');
+    });
+
+    helpModal?.addEventListener('click', (e) => {
+        if (e.target === helpModal) {
+            helpModal.classList.add('hidden');
+        }
+    });
+
+    // 设置弹窗功能
+    const settingsBtn = document.getElementById('settingsBtn');
+    const settingsModal = document.getElementById('settingsModal');
+    const closeSettingsModal = document.getElementById('closeSettingsModal');
+    const saveSettings = document.getElementById('saveSettings');
+
+    settingsBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        settingsModal?.classList.remove('hidden');
+    });
+
+    closeSettingsModal?.addEventListener('click', () => {
+        settingsModal?.classList.add('hidden');
+    });
+
+    settingsModal?.addEventListener('click', (e) => {
+        if (e.target === settingsModal) {
+            settingsModal.classList.add('hidden');
+        }
+    });
+
+    // 主题颜色切换
+    const themeButtons = document.querySelectorAll('.theme-color');
+    themeButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const theme = btn.getAttribute('data-theme');
+            changeTheme(theme);
+        });
+    });
+
+    function changeTheme(theme) {
+        // 这里可以添加更复杂的主题切换逻辑
+        const root = document.documentElement;
+        localStorage.setItem('theme', theme);
+        alert(`Theme changed to ${theme}!`);
+    }
+
+    // 语言切换
+    const languageSelect = document.getElementById('languageSelect');
+    languageSelect?.addEventListener('change', (e) => {
+        const lang = e.target.value;
+        localStorage.setItem('language', lang);
+        alert(`Language changed to ${lang === 'en' ? 'English' : 'Chinese'}!`);
+    });
+
+    // 保存设置
+    saveSettings?.addEventListener('click', () => {
+        const emailNotifications = document.getElementById('emailNotifications').checked;
+        const pushNotifications = document.getElementById('pushNotifications').checked;
+        
+        localStorage.setItem('emailNotifications', emailNotifications);
+        localStorage.setItem('pushNotifications', pushNotifications);
+        
+        settingsModal?.classList.add('hidden');
+        alert('Settings saved successfully!');
+    });
+    Chart.defaults.color = '#6b7280';
+    Chart.defaults.borderColor = 'rgba(107, 114, 128, 0.1)';
+    Chart.defaults.backgroundColor = 'rgba(107, 114, 128, 0.05)';
+    
+    // =========================
+    // 图表配置开始
+    // =========================
+
+    // 1. 首页 - 审计图表（圆环图）
+    const auditCanvas = document.getElementById('auditChart');
+    if (auditCanvas) {
+        const auditCtx = auditCanvas.getContext('2d');
+        new Chart(auditCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Audited', 'Pending Audit'],
+                datasets: [{
+                    data: [78, 22],
+                    backgroundColor: ['#10b981', '#e5e7eb'],
+                    borderWidth: 0,
+                    cutout: '75%'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': ' + context.parsed + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 2. 首页 - 月度收入趋势图
+    const revenueCanvas = document.getElementById('revenueChart');
+    if (revenueCanvas) {
+        const revenueCtx = revenueCanvas.getContext('2d');
+        new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                datasets: [{
+                    label: 'Actual Revenue',
+                    data: [280, 230, 315, 265, 380, 420, 456],
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#10b981',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5
+                }, {
+                    label: 'Target Revenue',
+                    data: [300, 300, 320, 320, 350, 380, 400],
+                    borderColor: '#6366f1',
+                    backgroundColor: 'transparent',
+                    borderDash: [5, 5],
+                    pointRadius: 0,
+                    tension: 0.2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: { usePointStyle: true, padding: 20 }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value + 'K';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 3. 历史表现 - 合同签订趋势图
+    const contractCanvas = document.getElementById('contractChart');
+    if (contractCanvas) {
+        const contractCtx = contractCanvas.getContext('2d');
+        new Chart(contractCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Contract Count',
+                    data: [16, 13, 18, 15, 22, 19],
+                    backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                    borderColor: '#3b82f6',
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    }
+
+    // 4. 历史表现 - 收入趋势对比图
+    const incomeCompareCanvas = document.getElementById('incomeCompareChart');
+    if (incomeCompareCanvas) {
+        const incomeCompareCtx = incomeCompareCanvas.getContext('2d');
+        new Chart(incomeCompareCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: '2024',
+                    data: [280, 230, 315, 265, 380, 420],
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    fill: false,
+                    tension: 0.4
+                }, {
+                    label: '2023',
+                    data: [220, 190, 280, 240, 320, 350],
+                    borderColor: '#6b7280',
+                    backgroundColor: 'rgba(107, 114, 128, 0.1)',
+                    fill: false,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: true, position: 'top' }
+                },
+                scales: {
+                    y: {
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value + 'K';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 5. 历史表现 - 客户类型分布图
+    const customerTypeCanvas = document.getElementById('customerTypeChart');
+    if (customerTypeCanvas) {
+        const customerTypeCtx = customerTypeCanvas.getContext('2d');
+        new Chart(customerTypeCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Enterprise Clients', 'Government Agencies', 'SMEs', 'Individual Clients', 'Others'],
+                datasets: [{
+                    data: [45, 25, 20, 8, 2],
+                    backgroundColor: [
+                        '#3b82f6',
+                        '#10b981', 
+                        '#f59e0b',
+                        '#8b5cf6',
+                        '#6b7280'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { padding: 20 } },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                label += context.parsed + '%';
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 6. 历史表现 - 业务类型收入占比图
+    const businessTypeCanvas = document.getElementById('businessTypeChart');
+    if (businessTypeCanvas) {
+        const businessTypeCtx = businessTypeCanvas.getContext('2d');
+        new Chart(businessTypeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Software Development', 'Technical Consulting', 'Project Management', 'System Integration', 'Training Services'],
+                datasets: [{
+                    data: [65, 25, 10, 15, 8],
+                    backgroundColor: [
+                        '#3b82f6',
+                        '#10b981',
+                        '#8b5cf6',
+                        '#f59e0b',
+                        '#ef4444'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { padding: 15 } },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                label += context.parsed + '%';
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 7. 收入预测 - 预测图表
+    const forecastCanvas = document.getElementById('forecastChart');
+    if (forecastCanvas) {
+        const forecastCtx = forecastCanvas.getContext('2d');
+        new Chart(forecastCtx, {
+            type: 'line',
+            data: {
+                labels: ['Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan'],
+                datasets: [{
+                    label: 'Optimistic Forecast',
+                    data: [240, 260, 280, 270, 295, 310],
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    fill: '+1',
+                    tension: 0.4,
+                    pointRadius: 4
+                }, {
+                    label: 'Realistic Forecast',
+                    data: [205, 220, 235, 215, 245, 225],
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    fill: '+1',
+                    tension: 0.4,
+                    pointRadius: 4
+                }, {
+                    label: 'Conservative Forecast',
+                    data: [180, 190, 200, 185, 210, 195],
+                    borderColor: '#6b7280',
+                    backgroundColor: 'rgba(107, 114, 128, 0.05)',
+                    fill: 'origin',
+                    tension: 0.4,
+                    pointRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' }
+                },
+                scales: {
+                    y: {
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value + 'K';
+                            }
+                        }
+                    }
+                },
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                }
+            }
+        });
+    }
+
+    // 8. 收入预测 - 置信度分析图
+    const confidenceCanvas = document.getElementById('confidenceChart');
+    if (confidenceCanvas) {
+        const confidenceCtx = confidenceCanvas.getContext('2d');
+        new Chart(confidenceCtx, {
+            type: 'radar',
+            data: {
+                labels: ['Market Stability', 'Customer Loyalty', 'Competitive Edge', 'Resource Adequacy', 'Technical Strength', 'Team Capability'],
+                datasets: [{
+                    label: 'Confidence',
+                    data: [85, 90, 75, 80, 92, 88],
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                    pointBackgroundColor: '#3b82f6',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            stepSize: 20
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 9. 收入预测 - 风险评估图
+    const riskCanvas = document.getElementById('riskChart');
+    if (riskCanvas) {
+        const riskCtx = riskCanvas.getContext('2d');
+        new Chart(riskCtx, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'High Impact Low Probability',
+                    data: [{x: 20, y: 80}, {x: 25, y: 85}, {x: 30, y: 75}],
+                    backgroundColor: '#ef4444',
+                    borderColor: '#ef4444'
+                }, {
+                    label: 'High Impact High Probability',
+                    data: [{x: 75, y: 85}, {x: 80, y: 90}],
+                    backgroundColor: '#dc2626',
+                    borderColor: '#dc2626'
+                }, {
+                    label: 'Low Impact Low Probability',
+                    data: [{x: 15, y: 20}, {x: 20, y: 25}, {x: 25, y: 15}, {x: 30, y: 30}],
+                    backgroundColor: '#10b981',
+                    borderColor: '#10b981'
+                }, {
+                    label: 'Low Impact High Probability',
+                    data: [{x: 70, y: 25}, {x: 75, y: 30}, {x: 80, y: 20}],
+                    backgroundColor: '#f59e0b',
+                    borderColor: '#f59e0b'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' }
+                },
+                scales: {
+                    x: { title: { display: true, text: 'Risk Probability (%)' } },
+                    y: { title: { display: true, text: 'Impact Level (%)' } }
+                }
+            }
+        });
+    }
+
+    // 10. 收入预测 - 市场机会分析图
+    const opportunityCanvas = document.getElementById('opportunityChart');
+    if (opportunityCanvas) {
+        const opportunityCtx = opportunityCanvas.getContext('2d');
+        new Chart(opportunityCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Emerging Markets', 'Product Innovation', 'Partnerships', 'Technology Upgrade', 'Customer Expansion'],
+                datasets: [{
+                    label: 'Opportunity Value ($10K)',
+                    data: [120, 85, 95, 75, 110],
+                    backgroundColor: [
+                        '#10b981',
+                        '#3b82f6',
+                        '#8b5cf6',
+                        '#f59e0b',
+                        '#06b6d4'
+                    ],
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { 
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value + '0K';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 预测类型选择器事件处理
+    const forecastTypeSelect = document.getElementById('forecastType');
+    if (forecastTypeSelect && forecastCanvas) {
+        forecastTypeSelect.addEventListener('change', function() {
+            const chart = Chart.getChart(forecastCanvas);
+            if (chart) {
+                // 根据选择更新数据
+                const type = this.value;
+                let datasets = chart.data.datasets;
+                
+                if (type === 'conservative') {
+                    datasets[0].data = [180, 190, 200, 185, 210, 195];
+                    datasets[1].data = [160, 170, 180, 165, 185, 175];
+                    datasets[2].data = [140, 150, 160, 145, 165, 155];
+                } else if (type === 'optimistic') {
+                    datasets[0].data = [260, 280, 300, 285, 315, 330];
+                    datasets[1].data = [240, 260, 280, 265, 290, 305];
+                    datasets[2].data = [220, 240, 260, 245, 270, 280];
+                } else {
+                    datasets[0].data = [240, 260, 280, 270, 295, 310];
+                    datasets[1].data = [205, 220, 235, 215, 245, 225];
+                    datasets[2].data = [180, 190, 200, 185, 210, 195];
+                }
+                
+                chart.update();
+            }
+        });
+    }
+
+    // 搜索和筛选功能
+    const customerSearch = document.getElementById('customerSearch');
+    customerSearch?.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#customersPage tbody tr');
+        
+        rows.forEach(row => {
+            const customerName = row.querySelector('td:first-child')?.textContent.toLowerCase() || '';
+            row.style.display = customerName.includes(searchTerm) ? '' : 'none';
+        });
+    });
+
+    const invoiceStatusFilter = document.getElementById('invoiceStatusFilter');
+    invoiceStatusFilter?.addEventListener('change', function() {
+        const filterValue = this.value;
+        const rows = document.querySelectorAll('#invoicesPage tbody tr');
+        
+        rows.forEach(row => {
+            const statusText = row.querySelector('td:nth-child(7)')?.textContent.toLowerCase() || '';
+            
+        if (filterValue === 'all' || 
+                (filterValue === 'paid' && statusText.includes('已付款')) ||
+                (filterValue === 'pending' && statusText.includes('待处理')) ||
+                (filterValue === 'overdue' && statusText.includes('已逾期'))) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+
+    // 页面初始化 - 设置默认页面为首页并高亮
+    showPage('dashboard');
+});
+</script>
+</body>
+</html>
+
+
+
+
